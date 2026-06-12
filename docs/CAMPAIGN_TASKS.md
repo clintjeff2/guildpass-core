@@ -1,6 +1,6 @@
-# GrantFox Campaign Tasks — GuildPass Core
+# GuildPass Core Tasks
 
-This document lists tasks suitable for **GrantFox campaign contributions**. Each task is scoped, actionable, and ready for contributors to pick up.
+This document lists tasks suitable for open contributions. Each task is scoped, actionable, and ready for contributors to pick up.
 
 Maintainers: ensure each task has a corresponding GitHub issue with appropriate labels.
 
@@ -88,4 +88,4 @@ Maintainers: ensure each task has a corresponding GitHub issue with appropriate 
 
 ---
 
-*To apply for a task, visit [GrantFox](https://contribute.grantfox.xyz) or comment on the linked GitHub issue.*
+*To work on a task, comment on the linked GitHub issue.*

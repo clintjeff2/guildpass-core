@@ -1,6 +1,6 @@
 # GitHub Labels — GuildPass Core
 
-This file documents the labels used on the `guildpass-core` repository for issue triage and GrantFox campaign management.
+This file documents the labels used on the `guildpass-core` repository for issue triage.
 
 Create labels via **GitHub Settings → Labels** or with the GitHub CLI:
 

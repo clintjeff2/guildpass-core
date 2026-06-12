@@ -2,7 +2,6 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D18-green?style=flat-square)](https://nodejs.org)
-[![GrantFox](https://img.shields.io/badge/GrantFox-open%20for%20contributions-orange?style=flat-square)](https://contribute.grantfox.xyz)
 
 GuildPass provides **wallet-based membership and token-gated community infrastructure** for the Web3 / EVM ecosystem.
 
@@ -15,7 +14,7 @@ This monorepo contains a runnable MVP backend and protocol foundation. It is int
 ## Structure
 
 | Path | Purpose |
-|---|---|
+| ---- | ------- |
 | `apps/access-api` | Fastify REST API (TypeScript, Prisma, PostgreSQL, OpenAPI) |
 | `packages/contracts` | TypeScript helpers for on-chain contract addresses and ABIs |
 | `packages/shared-types` | Shared types and enums for roles, membership, and decisions |
@@ -87,7 +86,7 @@ After deploying, set `MEMBERSHIP_NFT_ADDRESS` and `CHAIN_ID` in `.env`.
 ## API Endpoints (MVP)
 
 | Method | Path | Description |
-|---|---|---|
+| ---- | ---- | ----------- |
 | GET | `/v1/memberships/:wallet` | Membership status summary by wallet |
 | GET | `/v1/members/:wallet` | Member profile (with membership and roles) |
 | POST | `/v1/access/check` | Access decision for `{ wallet, communityId, resource }` |
@@ -166,23 +165,20 @@ Clear interfaces and TODOs are left where appropriate.
 
 ---
 
-## 🦊 Contributing via GrantFox
+## Contributing
 
-This repository is listed on **[GrantFox](https://contribute.grantfox.xyz)** for open contributions.
+We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full guide.
 
 ### How to contribute
 
 1. Browse open issues tagged [`good first issue`](https://github.com/Adamantine-Guild/guildpass-core/issues?q=label%3A%22good+first+issue%22) or [`help wanted`](https://github.com/Adamantine-Guild/guildpass-core/issues?q=label%3A%22help+wanted%22).
-2. Apply for an issue on [GrantFox](https://contribute.grantfox.xyz) or comment on the GitHub issue.
+2. Comment directly on the GitHub issue you'd like to work on.
 3. Fork the repo, create a feature branch, implement your change, open a PR.
-4. See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full guide.
 
-### Maintainer resources
+### Maintainer contact
 
-- [Maintainer app](https://maintainer.grantfox.xyz)
-- [GrantFox docs](https://docs.grantfox.xyz)
 - Contact: maintainers@guildpass.xyz
 
-## 📄 License
+## License
 
 MIT — see [LICENSE](./LICENSE).
