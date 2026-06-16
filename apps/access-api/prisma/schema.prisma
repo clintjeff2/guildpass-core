@@ -53,6 +53,7 @@ enum MembershipState {
 model Membership {
   id         String          @id @default(cuid())
   memberId   String          @unique
+  tokenId    Int?            @unique
   state      MembershipState
   expiresAt  DateTime?
   renewedAt  DateTime?
