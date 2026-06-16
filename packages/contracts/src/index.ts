@@ -15,6 +15,7 @@ export const MembershipNFTAbi = [
     "inputs": [
       { "indexed": true, "internalType": "address", "name": "to", "type": "address" },
       { "indexed": true, "internalType": "uint256", "name": "tokenId", "type": "uint256" },
+      { "indexed": false, "internalType": "string", "name": "communityId", "type": "string" },
       { "indexed": false, "internalType": "uint256", "name": "expiresAt", "type": "uint256" }
     ],
     "name": "MembershipMinted",

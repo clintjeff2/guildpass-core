@@ -66,7 +66,7 @@ OpenAPI docs available at: **http://localhost:3000/docs**
 
 ## Contracts (Solidity / Foundry)
 
-The `MembershipNFT` is a simple ERC-721 with expiry and suspension semantics, and admin-controlled mint/renew. It emits events suitable for off-chain indexing.
+The `MembershipNFT` is a simple ERC-721 with expiry and suspension semantics, and admin-controlled mint/renew. It supports **multi-community memberships**, meaning a single deployed contract can represent memberships across multiple communities via the `communityId` mapping. Events emitted are suitable for off-chain indexing and include the associated `communityId` to easily map to the backend state.
 
 ```bash
 # Build contracts
