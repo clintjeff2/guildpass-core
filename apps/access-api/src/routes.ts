@@ -1,7 +1,30 @@
 import type { FastifyInstance } from 'fastify';
 import { getPrisma } from './services/prisma';
 import { getMemberService } from './services/memberService';
-import { AccessCheckInput } from '@guildpass/shared-types';
+import type { AccessCheckInput, Role } from '@guildpass/shared-types';
+
+// Route-level TypeScript interfaces matching JSON schemas
+interface GetMembershipsParams {
+  wallet: string;
+}
+
+interface GetMemberParams {
+  wallet: string;
+}
+
+interface AccessCheckBody {
+  wallet: string;
+  communityId: string;
+  resource: string;
+}
+
+interface ListMembersParams {
+  communityId: string;
+}
+
+interface ListMembersQuery {
+  role?: Role;
+}
 
 export function registerRoutes(app: FastifyInstance) {
   const prisma = getPrisma();
@@ -9,7 +32,7 @@ export function registerRoutes(app: FastifyInstance) {
 
   app.get('/health', async () => ({ ok: true }));
 
-  app.get('/v1/memberships/:wallet', {
+  app.get<{ Params: GetMembershipsParams }>('/v1/memberships/:wallet', {
     schema: {
       summary: 'Fetch membership status for a wallet',
       params: { type: 'object', properties: { wallet: { type: 'string' } }, required: ['wallet'] },
@@ -34,25 +57,23 @@ export function registerRoutes(app: FastifyInstance) {
       },
     },
   }, async (req) => {
-    // @ts-ignore
     const wallet: string = req.params.wallet;
     return svc.getMembershipsByWallet(wallet);
   });
 
-  app.get('/v1/members/:wallet', {
+  app.get<{ Params: GetMemberParams }>('/v1/members/:wallet', {
     schema: {
       summary: 'Fetch a member profile by wallet',
       params: { type: 'object', properties: { wallet: { type: 'string' } }, required: ['wallet'] },
     },
   }, async (req, reply) => {
-    // @ts-ignore
     const wallet: string = req.params.wallet;
     const profile = await svc.getProfileByWallet(wallet);
     if (!profile) return reply.code(404).send({ message: 'Not found' });
     return profile;
   });
 
-  app.post('/v1/access/check', {
+  app.post<{ Body: AccessCheckBody }>('/v1/access/check', {
     schema: {
       summary: 'Perform an access check for a wallet, community, and resource',
       body: {
@@ -66,21 +87,18 @@ export function registerRoutes(app: FastifyInstance) {
       }
     }
   }, async (req) => {
-    const body = req.body as AccessCheckInput;
-    return svc.checkAccess(body);
+    return svc.checkAccess(req.body as AccessCheckInput);
   });
 
-  app.get('/v1/communities/:communityId/members', {
+  app.get<{ Params: ListMembersParams; Querystring: ListMembersQuery }>('/v1/communities/:communityId/members', {
     schema: {
       summary: 'List simple community member data for admins',
       params: { type: 'object', properties: { communityId: { type: 'string' } }, required: ['communityId'] },
       querystring: { type: 'object', properties: { role: { type: 'string' } } }
     }
   }, async (req) => {
-    // @ts-ignore
     const communityId: string = req.params.communityId;
-    // @ts-ignore
-    const role: string | undefined = (req.query as any).role;
-    return svc.listMembersForAdmin(communityId, role as any);
+    const role = req.query.role;
+    return svc.listMembersForAdmin(communityId, role);
   });
 }
