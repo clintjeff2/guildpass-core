@@ -666,7 +666,7 @@ describe('getMemberService - Membership State Normalization', () => {
 
       // All should report 'expired' state
       expect(result1.communities[0].state).toBe('expired');
-      expect(result2.membership.state).toBe('expired');
+      expect(result2!.membership.state).toBe('expired');
       expect(result3.membershipState).toBe('expired');
     });
   });
