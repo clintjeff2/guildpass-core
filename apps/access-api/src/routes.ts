@@ -47,7 +47,7 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
   app.get('/v1/communities/:communityId/members', async (request, reply) => {
     const { communityId } = request.params as { communityId: string };
     const role = (request.query as { role?: string })?.role;
-    const result = await memberService.listMembersForAdmin(communityId, role);
+    const result = await memberService.listMembersForAdmin(communityId, role as "admin" | "member" | "contributor" | undefined);
     return result;
   });
 }

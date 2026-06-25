@@ -9,59 +9,15 @@ import { logEvent } from "./auditService";
 
 const prisma = new PrismaClient();
 
-// Example existing function signature; keep existing logic and augment logging.
-// Replace with your file's exact exports/imports if different.
-export async function checkAccess({
-  walletId,
-  communityId,
-  resource,
-  policyRule,
-}: {
-  walletId?: string | null;
-  communityId?: string | null;
-  resource?: string | null;
-  policyRule?: string | null;
-}) {
-  // Preserve existing access decision logic here.
-  // For demonstration, assume evaluation returns this shape:
-  // { allowed: boolean, reasonCode: string, details: any }
-  // Replace evaluation with real logic.
-  let evaluation: { allowed: boolean; reasonCode?: string; details?: any } = {
-    allowed: false,
-    reasonCode: "NO_RULE_MATCH",
-    details: {},
-  };
-
-  // ... existing evaluation logic that sets evaluation.allowed and evaluation.reasonCode ...
-
-  // After determining evaluation, persist audit event
-  try {
-    await logEvent({
-      eventType: "ACCESS_CHECK",
-      walletId: walletId ?? null,
-      communityId: communityId ?? null,
-      resource: resource ?? null,
-      policyRule: policyRule ?? null,
-      decision: evaluation.allowed ? "ALLOW" : "DENY",
-      reasonCode: evaluation.reasonCode ?? null,
-      beforeState: null,
-      afterState: {
-        evaluation: evaluation.details ?? null,
-      },
-    });
-  } catch (err) {
-    // Never fail access because audit failed. Log error to console or logger.
-    console.error("Failed to log access audit event:", err);
-  }
-
-  // Return decision in the expected format to caller
+export function getMemberService(prismaOverride?: PrismaClient) {
+  const db = prismaOverride ?? prisma;
   return {
     async getMembershipsByWallet(wallet: string) {
-      const w = await prisma.wallet.findUnique({
+      const w = await db.wallet.findUnique({
         where: { address: wallet.toLowerCase() },
       });
       if (!w) return { wallet, communities: [] };
-      const members = await prisma.member.findMany({
+      const members = await db.member.findMany({
         where: { walletId: w.id },
         include: { membership: true },
       });
@@ -73,11 +29,11 @@ export async function checkAccess({
       return { wallet, communities };
     },
     async getProfileByWallet(wallet: string) {
-      const w = await prisma.wallet.findUnique({
+      const w = await db.wallet.findUnique({
         where: { address: wallet.toLowerCase() },
       });
       if (!w) return null;
-      const m = await prisma.member.findFirst({
+      const m = await db.member.findFirst({
         where: { walletId: w.id },
         include: { profile: true, membership: true, roles: true },
       });
@@ -99,7 +55,7 @@ export async function checkAccess({
     },
     async checkAccess(input: AccessCheckInput): Promise<AccessDecision> {
       const wallet = input.wallet.toLowerCase();
-      const w = await prisma.wallet.findUnique({ where: { address: wallet } });
+      const w = await db.wallet.findUnique({ where: { address: wallet } });
       if (!w) {
         return {
           allowed: false,
@@ -109,7 +65,7 @@ export async function checkAccess({
           effectiveRoles: [],
         };
       }
-      const member = await prisma.member.findFirst({
+      const member = await db.member.findFirst({
         where: { walletId: w.id, communityId: input.communityId },
         include: { roles: true, membership: true },
       });
@@ -127,7 +83,7 @@ export async function checkAccess({
           effectiveRoles: [],
         };
       }
-      const policy = await prisma.accessPolicy.findFirst({
+      const policy = await db.accessPolicy.findFirst({
         where: { communityId: input.communityId, resource: input.resource },
       });
       const ruleType = policy ? policy.ruleType : "MEMBERS_ONLY";
@@ -156,7 +112,7 @@ export async function checkAccess({
       role?: "admin" | "member" | "contributor",
     ) {
       // TODO: add auth to ensure requester is admin
-      const members = await prisma.member.findMany({
+      const members = await db.member.findMany({
         where: { communityId },
         include: { wallet: true, membership: true, roles: true, profile: true },
       });

@@ -83,6 +83,17 @@ After deploying, set `MEMBERSHIP_NFT_ADDRESS` and `CHAIN_ID` in `.env`.
 
 ---
 
+## API Versioning & Compatibility
+
+The GuildPass Access API follows a strict versioning and compatibility contract for all `/v1` routes:
+
+- **Version Header**: All API responses include an `x-guildpass-api-version` header (e.g., `1.0.0`) indicating the version being served.
+- **Server Version**: The `GET /health/live` endpoint exposes the current server API version.
+- **Backwards Compatibility**: We commit to maintaining backwards compatibility for all `/v1` routes. We will not remove fields from responses or require new mandatory request parameters without bumping the major API version (e.g., to `/v2`).
+- **Deprecation**: If a `/v1` route or field needs to be deprecated, we will serve a `deprecation: true` header on those responses and provide guidance in our documentation. Deprecated endpoints will continue to function for a minimum sunset period before removal. Clients are encouraged to monitor the `deprecation` header.
+
+---
+
 ## API Endpoints (MVP)
 
 | Method | Path | Description |
