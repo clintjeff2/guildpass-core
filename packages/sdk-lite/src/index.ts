@@ -2,8 +2,50 @@ import { GuildPassApiError } from './errors';
 
 export interface AccessCheckResult {
   allowed: boolean;
+  code?: string;
+  membershipState?: string;
   reason?: string;
-  role?: string;
+  reasons?: Array<{ code: string; message: string }>;
+  effectiveRoles?: string[];
+}
+
+export interface MembershipSummary {
+  wallet: string;
+  communities: Array<{
+    communityId: string;
+    state: string;
+    expiresAt: string | null;
+  }>;
+}
+
+export interface MemberProfileResult {
+  communityId: string;
+  profile: {
+    id: string;
+    displayName: string;
+    bio?: string;
+    avatarUrl?: string;
+  };
+  membership: {
+    state: string;
+    expiresAt: string | null;
+  };
+  roles: string[];
+}
+
+export interface AccessCheckInput {
+  wallet: string;
+  communityId: string;
+  resource: string;
+}
+
+export interface CommunityMembersResult {
+  members: Array<{
+    wallet: string;
+    displayName?: string;
+    state: string;
+    roles: string[];
+  }>;
 }
 
 export interface GuildPassClientOptions {
@@ -45,20 +87,61 @@ export class GuildPassClient {
   }
 
   /**
-   * Check whether a member is allowed to perform an action against a target.
+   * Fetch all membership communities for a wallet.
    *
    * @throws {GuildPassApiError} when the request fails, the response is not
    *   JSON, or a successful response carries an unexpected shape.
    */
-  async checkAccess(input: {
-    memberId: string;
-    action: string;
-    target: string;
-  }): Promise<AccessCheckResult> {
+  async getMemberships(wallet: string): Promise<MembershipSummary> {
+    return this._request<MembershipSummary>(
+      `/v1/memberships/${encodePathSegment(wallet)}`,
+      { method: 'GET' },
+    );
+  }
+
+  /**
+   * Fetch a member profile, membership snapshot, and roles for a wallet.
+   *
+   * @throws {GuildPassApiError} when the request fails, the response is not
+   *   JSON, or a successful response carries an unexpected shape.
+   */
+  async getMemberProfile(wallet: string): Promise<MemberProfileResult> {
+    return this._request<MemberProfileResult>(
+      `/v1/members/${encodePathSegment(wallet)}`,
+      { method: 'GET' },
+    );
+  }
+
+  /**
+   * Check whether a wallet may access a resource inside a community.
+   *
+   * @throws {GuildPassApiError} when the request fails, the response is not
+   *   JSON, or a successful response carries an unexpected shape.
+   */
+  async checkAccess(input: AccessCheckInput): Promise<AccessCheckResult> {
     return this._request<AccessCheckResult>('/v1/access/check', {
       method: 'POST',
       body: JSON.stringify(input),
     });
+  }
+
+  /**
+   * List members for a community, optionally filtering by role.
+   *
+   * @throws {GuildPassApiError} when the request fails, the response is not
+   *   JSON, or a successful response carries an unexpected shape.
+   */
+  async listCommunityMembers(
+    communityId: string,
+    options: { role?: string } = {},
+  ): Promise<CommunityMembersResult> {
+    const query = options.role
+      ? `?role=${encodeURIComponent(options.role)}`
+      : '';
+    return this._request<CommunityMembersResult>(
+      `/v1/communities/${encodePathSegment(communityId)}/members${query}`,
+      { method: 'GET' },
+    );
   }
 
   /**
@@ -185,6 +268,10 @@ function buildHttpErrorMessage(
     return `${base}: ${snippet}`;
   }
   return base;
+}
+
+function encodePathSegment(value: string): string {
+  return encodeURIComponent(value);
 }
 
 export { GuildPassApiError } from './errors';

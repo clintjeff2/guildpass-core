@@ -77,6 +77,16 @@ model RoleAssignment {
   member    Member     @relation(fields: [memberId], references: [id])
 }
 
+model Badge {
+  id       String   @id @default(cuid())
+  memberId String
+  label    String
+  issuedAt DateTime @default(now())
+  member   Member   @relation(fields: [memberId], references: [id])
+
+  @@index([memberId])
+}
+
 model AccessPolicy {
   id          String   @id @default(cuid())
   communityId String
