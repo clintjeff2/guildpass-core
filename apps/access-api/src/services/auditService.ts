@@ -2,7 +2,19 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+// Transaction-scoped Prisma clients expose an auditEvent model.
+// We keep this intentionally loose so callers can pass Prisma's transaction client.
+type AuditEventClient = {
+  create: (args: any) => any;
+};
+
+type PrismaLikeClient = {
+  auditEvent: AuditEventClient;
+};
+
+
 export type AuditEventInput = {
+
   eventType:
     | "ACCESS_CHECK"
     | "MEMBERSHIP_CREATED"
@@ -24,7 +36,18 @@ export type AuditEventInput = {
  * Persist an audit event to the DB.
  */
 export async function logEvent(event: AuditEventInput) {
-  return prisma.auditEvent.create({
+  return logEventTx(prisma, event);
+}
+
+/**
+ * Transaction-aware audit event creation.
+ *
+ * Important: we run this inside the caller's Prisma transaction so audit events
+ * cannot cause partial visibility of access-affecting mutations.
+ */
+export async function logEventTx(db: PrismaLikeClient, event: AuditEventInput) {
+  return db.auditEvent.create({
+
     data: {
       eventType: event.eventType,
       walletId: event.walletId ?? null,
@@ -38,6 +61,7 @@ export async function logEvent(event: AuditEventInput) {
     },
   });
 }
+
 
 /**
  * Get audit events for a communityId + walletId, newest first. Pagination optional.

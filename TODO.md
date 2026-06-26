@@ -1,10 +1,10 @@
 # TODO
 
-## Cross-community scoping safeguards (acceptance: >=96%)
+## Access API: Atomic access-affecting writes (Prisma transactions)
 
-- [ ] Update `apps/access-api/src/services/auditService.ts` to require `communityId` for wallet reads; add `getEventsByCommunityAndWallet` and remove/guard old method.
-- [ ] Update `apps/access-api/src/services/memberService.ts` to require `communityId` for wallet-scoped membership/profile reads (and update routes + tests accordingly).
-- [ ] Update `apps/access-api/src/services/contractEventHelpers.ts` to scope renewal/suspension lookups by both `tokenId` and `communityId`.
-- [ ] Add cross-community integration tests that create records in two communities and prove no leakage in responses.
-- [ ] Ensure TypeScript/Jest pass.
+- [ ] Implement transaction-aware audit logging in `apps/access-api/src/services/auditService.ts` (add tx-scoped helper while preserving existing `logEvent`).
+- [ ] Wrap multi-table contract event writes in Prisma transactions in `apps/access-api/src/services/contractEventHelpers.ts`.
+- [ ] Add rollback tests that simulate transaction failure and verify rollback (new Jest test).
+- [ ] Run `pnpm -C apps/access-api test` and fix any failures.
+- [ ] Sanity-check types/TS compilation.
 
