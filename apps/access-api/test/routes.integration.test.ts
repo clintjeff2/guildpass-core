@@ -6,9 +6,30 @@ import { API_CONTRACT } from '../../../packages/shared-types/src/apiContract';
  *
  * These tests create a Fastify instance with mocked services —
  * no network binding, no Prisma, no workspace deps required.
+ *
+ * Error responses use the standardised {@link ApiErrorResponse} envelope:
+ *   { error, code, message, statusCode, details? }
  */
 
 type MembershipState = 'active' | 'expired' | 'suspended' | 'invited';
+
+// --- Error envelope helpers (mirrors access-api/src/errors.ts) ---
+interface ErrorPayload {
+  statusCode: number;
+  code: string;
+  message: string;
+  details?: string | Record<string, unknown>;
+}
+
+function apiError(payload: ErrorPayload) {
+  return {
+    error: payload.code,
+    code: payload.code,
+    message: payload.message,
+    statusCode: payload.statusCode,
+    ...(payload.details !== undefined ? { details: payload.details } : {}),
+  };
+}
 
 // --- Mock service factory ---
 function createMockMemberService(overrides: Record<string, jest.Mock> = {}) {
@@ -20,7 +41,7 @@ function createMockMemberService(overrides: Record<string, jest.Mock> = {}) {
   };
 }
 
-// --- Build test app with mocked services ---
+// --- Build test app with mocked services (uses standard error envelope) ---
 async function buildTestApp(mockService: ReturnType<typeof createMockMemberService>): Promise<FastifyInstance> {
   const app = Fastify();
 
@@ -29,7 +50,7 @@ async function buildTestApp(mockService: ReturnType<typeof createMockMemberServi
     return { status: 'ok', timestamp: new Date().toISOString() };
   });
 
-  // Register routes with mocked service
+  // Register routes with mocked service + standardised error envelope
   app.get('/v1/memberships/:wallet', async (request) => {
     const { wallet } = request.params as { wallet: string };
     return mockService.getMembershipsByWallet(wallet);
@@ -39,7 +60,7 @@ async function buildTestApp(mockService: ReturnType<typeof createMockMemberServi
     const { wallet } = request.params as { wallet: string };
     const result = await mockService.getProfileByWallet(wallet);
     if (!result) {
-      return reply.status(404).send({ error: 'Member not found' });
+      return reply.status(404).send(apiError({ statusCode: 404, code: 'NOT_FOUND', message: 'Member not found' }));
     }
     return result;
   });
@@ -51,9 +72,9 @@ async function buildTestApp(mockService: ReturnType<typeof createMockMemberServi
       resource: string;
     };
     if (!body?.wallet || !body?.communityId || !body?.resource) {
-      return reply.status(400).send({
-        error: 'Missing required fields: wallet, communityId, resource',
-      });
+      return reply.status(400).send(
+        apiError({ statusCode: 400, code: 'VALIDATION_ERROR', message: 'Missing required fields: wallet, communityId, resource' }),
+      );
     }
     return mockService.checkAccess(body);
   });
@@ -153,7 +174,7 @@ describe('GET /v1/members/:wallet', () => {
     await app.close();
   });
 
-  test('returns 404 when member not found', async () => {
+  test('returns 404 with standardised error envelope when member not found', async () => {
     const mock = createMockMemberService({
       getProfileByWallet: jest.fn().mockResolvedValue(null),
     });
@@ -165,7 +186,11 @@ describe('GET /v1/members/:wallet', () => {
     });
 
     expect(response.statusCode).toBe(404);
-    expect(response.json().error).toBe('Member not found');
+    const body = response.json();
+    expect(body.error).toBe('NOT_FOUND');
+    expect(body.code).toBe('NOT_FOUND');
+    expect(body.message).toBe('Member not found');
+    expect(body.statusCode).toBe(404);
 
     await app.close();
   });
@@ -222,7 +247,7 @@ describe('POST /v1/access/check', () => {
     await app.close();
   });
 
-  test('returns 400 when required fields are missing', async () => {
+  test('returns 400 with standardised error envelope when required fields are missing', async () => {
     const mock = createMockMemberService();
     const app = await buildTestApp(mock);
 
@@ -233,7 +258,11 @@ describe('POST /v1/access/check', () => {
     });
 
     expect(response.statusCode).toBe(400);
-    expect(response.json().error).toMatch(/Missing required fields/);
+    const body = response.json();
+    expect(body.error).toBe('VALIDATION_ERROR');
+    expect(body.code).toBe('VALIDATION_ERROR');
+    expect(body.message).toMatch(/Missing required fields/);
+    expect(body.statusCode).toBe(400);
 
     await app.close();
   });

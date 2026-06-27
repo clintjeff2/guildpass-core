@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { getMemberService } from './services/memberService';
 import { getPrisma } from './services/prisma';
+import { notFound, validationError } from './errors';
 
 /**
  * Register all business routes on the Fastify instance.
@@ -10,8 +11,8 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
   const prisma = getPrisma();
   const memberService = getMemberService(prisma);
 
-  // GET /v1/memberships/:wallet — list membership communities for a wallet
-  app.get('/v1/communities/:communityId/memberships/:wallet', async (request, reply) => {
+  // GET /v1/communities/:communityId/memberships/:wallet — list membership communities for a wallet
+  app.get('/v1/communities/:communityId/memberships/:wallet', async (request) => {
     const { communityId, wallet } = request.params as { communityId: string; wallet: string };
     const result = await memberService.getMembershipsByWallet(wallet, communityId);
     return result;
@@ -22,11 +23,10 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
     const { communityId, wallet } = request.params as { communityId: string; wallet: string };
     const result = await memberService.getProfileByWallet(wallet, communityId);
     if (!result) {
-      return reply.status(404).send({ error: 'Member not found' });
+      return reply.status(404).send(notFound('Member not found'));
     }
     return result;
   });
-
 
   // POST /v1/access/check — check access for wallet/resource
   app.post('/v1/access/check', async (request, reply) => {
@@ -36,16 +36,16 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
       resource: string;
     };
     if (!body?.wallet || !body?.communityId || !body?.resource) {
-      return reply.status(400).send({
-        error: 'Missing required fields: wallet, communityId, resource',
-      });
+      return reply.status(400).send(
+        validationError('Missing required fields: wallet, communityId, resource'),
+      );
     }
     const result = await memberService.checkAccess(body);
     return result;
   });
 
   // GET /v1/communities/:communityId/members — list members for admin
-  app.get('/v1/communities/:communityId/members', async (request, reply) => {
+  app.get('/v1/communities/:communityId/members', async (request) => {
     const { communityId } = request.params as { communityId: string };
     const role = (request.query as { role?: string })?.role;
     const result = await memberService.listMembersForAdmin(communityId, role as "admin" | "member" | "contributor" | undefined);
