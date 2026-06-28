@@ -40,7 +40,7 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
         error: 'Missing required fields: wallet, communityId, resource',
       });
     }
-    const result = await memberService.checkAccess(body);
+    const result = await memberService.checkAccess(body as import('@guildpass/shared-types').AccessCheckInput);
     return result;
   });
 
