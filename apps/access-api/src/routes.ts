@@ -87,6 +87,79 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
     }
   });
 
+  // POST /v1/communities/:communityId/members/:wallet/membership — create a membership
+  app.post('/v1/communities/:communityId/members/:wallet/membership', async (request: FastifyRequest, reply: FastifyReply) => {
+    const { communityId, wallet } = request.params as { communityId: string; wallet: string };
+    const body = request.body as { expiresAt?: string; displayName?: string };
+    const requesterWallet = getRequesterWallet(request);
+
+    try {
+      const result = await memberService.createMembership({
+        requesterWallet: requesterWallet as any,
+        communityId,
+        targetWallet: wallet as any,
+        expiresAt: body?.expiresAt,
+        displayName: body?.displayName,
+      });
+      return reply.status(201).send(result);
+    } catch (error) {
+      return sendRoleMutationError(reply, error);
+    }
+  });
+
+  // PATCH /v1/communities/:communityId/members/:wallet/membership — renew a membership
+  app.patch('/v1/communities/:communityId/members/:wallet/membership', async (request: FastifyRequest, reply: FastifyReply) => {
+    const { communityId, wallet } = request.params as { communityId: string; wallet: string };
+    const body = request.body as { expiresAt: string };
+    const requesterWallet = getRequesterWallet(request);
+
+    try {
+      const result = await memberService.renewMembership({
+        requesterWallet: requesterWallet as any,
+        communityId,
+        targetWallet: wallet as any,
+        expiresAt: body?.expiresAt,
+      } as any);
+      return reply.status(200).send(result);
+    } catch (error) {
+      return sendRoleMutationError(reply, error);
+    }
+  });
+
+  // POST /v1/communities/:communityId/members/:wallet/membership/suspend — suspend a membership
+  app.post('/v1/communities/:communityId/members/:wallet/membership/suspend', async (request: FastifyRequest, reply: FastifyReply) => {
+    const { communityId, wallet } = request.params as { communityId: string; wallet: string };
+    const requesterWallet = getRequesterWallet(request);
+
+    try {
+      const result = await memberService.suspendMembership({
+        requesterWallet: requesterWallet as any,
+        communityId,
+        targetWallet: wallet as any,
+      });
+      return reply.status(200).send(result);
+    } catch (error) {
+      return sendRoleMutationError(reply, error);
+    }
+  });
+
+  // POST /v1/communities/:communityId/members/:wallet/membership/reactivate — reactivate a membership
+  app.post('/v1/communities/:communityId/members/:wallet/membership/reactivate', async (request: FastifyRequest, reply: FastifyReply) => {
+    const { communityId, wallet } = request.params as { communityId: string; wallet: string };
+    const requesterWallet = getRequesterWallet(request);
+
+    try {
+      const result = await memberService.reactivateMembership({
+        requesterWallet: requesterWallet as any,
+        communityId,
+        targetWallet: wallet as any,
+      });
+      return reply.status(200).send(result);
+    } catch (error) {
+      return sendRoleMutationError(reply, error);
+    }
+  });
+
   // POST /v1/access/check — check access for wallet/resource
   app.post('/v1/access/check', async (request: FastifyRequest, reply: FastifyReply) => {
     const body = request.body as {

@@ -24,6 +24,7 @@ import rateLimit from '@fastify/rate-limit';
 import { buildPinoHttp } from './observability/logger';
 import { registry, metrics } from './observability/metrics';
 import { registerRoutes } from './routes';
+import { config } from './config';
 import { getPrisma } from './services/prisma';
 import { unauthorized } from './errors';
 

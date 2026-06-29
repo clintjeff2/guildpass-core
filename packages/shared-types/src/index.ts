@@ -89,6 +89,35 @@ export interface RoleMutationResult {
   message?: string;
 }
 
+export interface CreateMembershipInput {
+  requesterWallet: WalletAddress;
+  communityId: string;
+  targetWallet: WalletAddress;
+  expiresAt?: string;
+  displayName?: string;
+}
+
+export interface RenewMembershipInput {
+  requesterWallet: WalletAddress;
+  communityId: string;
+  targetWallet: WalletAddress;
+  expiresAt: string;
+}
+
+export interface UpdateMembershipStatusInput {
+  requesterWallet: WalletAddress;
+  communityId: string;
+  targetWallet: WalletAddress;
+}
+
+export interface MembershipMutationResult {
+  communityId: string;
+  wallet: WalletAddress;
+  state: MembershipState;
+  expiresAt?: string | null;
+  message?: string;
+}
+
 export interface RoleContext {
   assignments: RoleAssignment[];
   membershipState: MembershipState;
