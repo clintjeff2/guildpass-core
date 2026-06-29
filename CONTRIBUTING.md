@@ -14,7 +14,7 @@ Thank you for your interest in contributing to GuildPass Core! This is the backe
 - [Review Process](#review-process)
 - [Communication](#communication)
 
----
+----
 
 ## Code of Conduct
 
