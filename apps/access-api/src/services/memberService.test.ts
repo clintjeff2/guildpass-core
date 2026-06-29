@@ -50,7 +50,7 @@ describe('getMemberService - Membership State Normalization', () => {
       (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValue(mockWallet);
       (mockPrisma.member.findMany as jest.Mock).mockResolvedValue([mockMember]);
 
-      const result = await memberService.getMembershipsByWallet(wallet);
+      const result = await memberService.getMembershipsByWallet(wallet, 'community-1');
 
       expect(result.communities[0].state).toBe('active');
     });
@@ -70,7 +70,7 @@ describe('getMemberService - Membership State Normalization', () => {
       (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValue(mockWallet);
       (mockPrisma.member.findMany as jest.Mock).mockResolvedValue([mockMember]);
 
-      const result = await memberService.getMembershipsByWallet(wallet);
+      const result = await memberService.getMembershipsByWallet(wallet, 'community-1');
 
       expect(result.communities[0].state).toBe('expired');
     });
@@ -90,7 +90,7 @@ describe('getMemberService - Membership State Normalization', () => {
       (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValue(mockWallet);
       (mockPrisma.member.findMany as jest.Mock).mockResolvedValue([mockMember]);
 
-      const result = await memberService.getMembershipsByWallet(wallet);
+      const result = await memberService.getMembershipsByWallet(wallet, 'community-1');
 
       expect(result.communities[0].state).toBe('active');
     });
@@ -106,7 +106,7 @@ describe('getMemberService - Membership State Normalization', () => {
       (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValue(mockWallet);
       (mockPrisma.member.findMany as jest.Mock).mockResolvedValue([mockMember]);
 
-      const result = await memberService.getMembershipsByWallet(wallet);
+      const result = await memberService.getMembershipsByWallet(wallet, 'community-1');
 
       expect(result.communities[0].state).toBe('invited');
     });
@@ -126,7 +126,7 @@ describe('getMemberService - Membership State Normalization', () => {
       (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValue(mockWallet);
       (mockPrisma.member.findMany as jest.Mock).mockResolvedValue([mockMember]);
 
-      const result = await memberService.getMembershipsByWallet(wallet);
+      const result = await memberService.getMembershipsByWallet(wallet, 'community-1');
 
       expect(result.communities[0].state).toBe('suspended');
     });
@@ -146,7 +146,7 @@ describe('getMemberService - Membership State Normalization', () => {
       (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValue(mockWallet);
       (mockPrisma.member.findMany as jest.Mock).mockResolvedValue([mockMember]);
 
-      const result = await memberService.getMembershipsByWallet(wallet);
+      const result = await memberService.getMembershipsByWallet(wallet, 'community-1');
 
       expect(result.communities[0].state).toBe('expired');
     });
@@ -158,7 +158,7 @@ describe('getMemberService - Membership State Normalization', () => {
 
       (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const result = await memberService.getMembershipsByWallet(wallet);
+      const result = await memberService.getMembershipsByWallet(wallet, 'community-1');
 
       expect(result.wallet).toBe(wallet);
       expect(result.communities).toEqual([]);
@@ -188,7 +188,7 @@ describe('getMemberService - Membership State Normalization', () => {
       (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValue(mockWallet);
       (mockPrisma.member.findMany as jest.Mock).mockResolvedValue(mockMembers);
 
-      const result = await memberService.getMembershipsByWallet(wallet);
+      const result = await memberService.getMembershipsByWallet(wallet, 'community-1');
 
       expect(result.communities).toHaveLength(2);
       expect(result.communities[0].state).toBe('active');
@@ -210,7 +210,7 @@ describe('getMemberService - Membership State Normalization', () => {
       (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValue(mockWallet);
       (mockPrisma.member.findMany as jest.Mock).mockResolvedValue([mockMember]);
 
-      const result = await memberService.getMembershipsByWallet(wallet);
+      const result = await memberService.getMembershipsByWallet(wallet, 'community-1');
 
       expect(result.communities[0].expiresAt).toBe(expiryDate.toISOString());
     });
@@ -222,7 +222,7 @@ describe('getMemberService - Membership State Normalization', () => {
 
       (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const result = await memberService.getProfileByWallet(wallet);
+      const result = await memberService.getProfileByWallet(wallet, 'community-1');
 
       expect(result).toBeNull();
     });
@@ -234,7 +234,7 @@ describe('getMemberService - Membership State Normalization', () => {
       (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValue(mockWallet);
       (mockPrisma.member.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const result = await memberService.getProfileByWallet(wallet);
+      const result = await memberService.getProfileByWallet(wallet, 'community-1');
 
       expect(result).toBeNull();
     });
@@ -260,7 +260,7 @@ describe('getMemberService - Membership State Normalization', () => {
       (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValue(mockWallet);
       (mockPrisma.member.findFirst as jest.Mock).mockResolvedValue(mockMember);
 
-      const result = await memberService.getProfileByWallet(wallet);
+      const result = await memberService.getProfileByWallet(wallet, 'community-1');
 
       expect(result).not.toBeNull();
       expect(result!.membership.state).toBe('expired');
@@ -290,7 +290,7 @@ describe('getMemberService - Membership State Normalization', () => {
       (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValue(mockWallet);
       (mockPrisma.member.findFirst as jest.Mock).mockResolvedValue(mockMember);
 
-      const result = await memberService.getProfileByWallet(wallet);
+      const result = await memberService.getProfileByWallet(wallet, 'community-1');
 
       expect(result!.roles).toEqual(['admin']);
     });
@@ -674,7 +674,7 @@ describe('getMemberService - Membership State Normalization', () => {
       (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValue(mockWallet);
       (mockPrisma.member.findMany as jest.Mock).mockResolvedValue([mockMember]);
 
-      const result = await memberService.getMembershipsByWallet(wallet);
+      const result = await memberService.getMembershipsByWallet(wallet, 'community-1');
 
       expect(result.communities[0].state).toBe('expired');
       expect(result.communities[0].expiresAt).toBe(pastDate.toISOString());
@@ -696,7 +696,7 @@ describe('getMemberService - Membership State Normalization', () => {
       (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValue(mockWallet);
       (mockPrisma.member.findMany as jest.Mock).mockResolvedValue([mockMember]);
 
-      const result = await memberService.getMembershipsByWallet(wallet);
+      const result = await memberService.getMembershipsByWallet(wallet, 'community-1');
 
       expect(result.communities[0].state).toBe('active');
     });
@@ -750,7 +750,7 @@ describe('getMemberService - Membership State Normalization', () => {
         },
       ]);
 
-      const result1 = await memberService.getMembershipsByWallet(wallet);
+      const result1 = await memberService.getMembershipsByWallet(wallet, 'community-1');
 
       // Test getProfileByWallet
       (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValueOnce(mockWallet);
@@ -765,7 +765,7 @@ describe('getMemberService - Membership State Normalization', () => {
         roles: [],
       });
 
-      const result2 = await memberService.getProfileByWallet(wallet);
+      const result2 = await memberService.getProfileByWallet(wallet, 'community-1');
 
       // Test checkAccess
       (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValueOnce(mockWallet);
@@ -790,6 +790,101 @@ describe('getMemberService - Membership State Normalization', () => {
       expect(result1.communities[0].state).toBe('expired');
       expect(result2!.membership.state).toBe('expired');
       expect(result3.membershipState).toBe('expired');
+    });
+  });
+
+  describe('Membership Lifecycle Mutations', () => {
+    const requesterWallet = '0x1111111111111111111111111111111111111111' as any;
+    const targetWallet = '0x2222222222222222222222222222222222222222' as any;
+    const communityId = 'community-1';
+
+    beforeEach(() => {
+      // Mock ensureAdmin success by default
+      (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValue({ id: 'w-admin' });
+      (mockPrisma.member.findFirst as jest.Mock).mockResolvedValue({
+        roles: [{ role: 'admin', active: true }],
+      });
+      (mockPrisma.$transaction as jest.Mock) = jest.fn((cb) => cb(mockPrisma));
+    });
+
+    test('createMembership should create all records', async () => {
+      (mockPrisma.wallet.upsert as jest.Mock).mockResolvedValue({ id: 'w-target' });
+      (mockPrisma.member.upsert as jest.Mock).mockResolvedValue({ id: 'm-target' });
+      (mockPrisma.membership.findUnique as jest.Mock).mockResolvedValue(null);
+      (mockPrisma.membership.create as jest.Mock).mockResolvedValue({
+        state: 'active',
+        expiresAt: null,
+      });
+      (mockPrisma.auditEvent.create as jest.Mock).mockResolvedValue({});
+
+      const result = await memberService.createMembership({
+        requesterWallet,
+        communityId,
+        targetWallet,
+      });
+
+      expect(result.state).toBe('active');
+      expect(mockPrisma.membership.create).toHaveBeenCalled();
+    });
+
+    test('renewMembership should update expiresAt', async () => {
+      const futureDate = new Date(Date.now() + 1000000).toISOString();
+      (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'w-admin' }) // ensureAdmin
+                                                 .mockResolvedValueOnce({ id: 'w-target' }); // renew
+      (mockPrisma.member.findUnique as jest.Mock).mockResolvedValue({ id: 'm-target' });
+      (mockPrisma.membership.findUnique as jest.Mock).mockResolvedValue({ id: 'ms-target', state: 'active' });
+      (mockPrisma.membership.update as jest.Mock).mockResolvedValue({
+        state: 'active',
+        expiresAt: new Date(futureDate),
+      });
+
+      const result = await memberService.renewMembership({
+        requesterWallet,
+        communityId,
+        targetWallet,
+        expiresAt: futureDate,
+      });
+
+      expect(result.expiresAt).toBe(new Date(futureDate).toISOString());
+      expect(mockPrisma.membership.update).toHaveBeenCalled();
+    });
+
+    test('suspendMembership should update state', async () => {
+      (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'w-admin' })
+                                                 .mockResolvedValueOnce({ id: 'w-target' });
+      (mockPrisma.member.findUnique as jest.Mock).mockResolvedValue({ id: 'm-target' });
+      (mockPrisma.membership.findUnique as jest.Mock).mockResolvedValue({ id: 'ms-target', state: 'active' });
+      (mockPrisma.membership.update as jest.Mock).mockResolvedValue({
+        state: 'suspended',
+        expiresAt: null,
+      });
+
+      const result = await memberService.suspendMembership({
+        requesterWallet,
+        communityId,
+        targetWallet,
+      });
+
+      expect(result.state).toBe('suspended');
+    });
+
+    test('reactivateMembership should restore state', async () => {
+      (mockPrisma.wallet.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'w-admin' })
+                                                 .mockResolvedValueOnce({ id: 'w-target' });
+      (mockPrisma.member.findUnique as jest.Mock).mockResolvedValue({ id: 'm-target' });
+      (mockPrisma.membership.findUnique as jest.Mock).mockResolvedValue({ id: 'ms-target', state: 'suspended' });
+      (mockPrisma.membership.update as jest.Mock).mockResolvedValue({
+        state: 'active',
+        expiresAt: null,
+      });
+
+      const result = await memberService.reactivateMembership({
+        requesterWallet,
+        communityId,
+        targetWallet,
+      });
+
+      expect(result.state).toBe('active');
     });
   });
 });

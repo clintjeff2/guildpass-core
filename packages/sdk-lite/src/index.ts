@@ -67,6 +67,32 @@ export interface RoleMutationResult {
   message?: string;
 }
 
+export interface CreateMembershipInput {
+  communityId: string;
+  wallet: string;
+  expiresAt?: string;
+  displayName?: string;
+}
+
+export interface RenewMembershipInput {
+  communityId: string;
+  wallet: string;
+  expiresAt: string;
+}
+
+export interface MembershipStatusMutationInput {
+  communityId: string;
+  wallet: string;
+}
+
+export interface MembershipMutationResult {
+  communityId: string;
+  wallet: string;
+  state: string;
+  expiresAt?: string | null;
+  message?: string;
+}
+
 export interface GuildPassClientOptions {
   /** Base URL of the GuildPass API, e.g. `https://api.guildpass.example.com`. */
   baseUrl: string;
@@ -112,6 +138,89 @@ export class GuildPassClient {
               'No fetch implementation available. Pass `fetchImpl` or upgrade to Node 18+.',
             );
           })());
+  }
+
+  /**
+   * Create a membership for a wallet in a community.
+   */
+  async createMembership(
+    input: CreateMembershipInput,
+    options: { requesterWallet?: string } = {},
+  ): Promise<MembershipMutationResult> {
+    const headers = options.requesterWallet
+      ? { 'x-wallet': options.requesterWallet }
+      : undefined;
+    return this._request<MembershipMutationResult>(
+      `/v1/communities/${encodePathSegment(input.communityId)}/members/${encodePathSegment(input.wallet)}/membership`,
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          expiresAt: input.expiresAt,
+          displayName: input.displayName,
+        }),
+      },
+    );
+  }
+
+  /**
+   * Renew a membership expiry date for a wallet in a community.
+   */
+  async renewMembership(
+    input: RenewMembershipInput,
+    options: { requesterWallet?: string } = {},
+  ): Promise<MembershipMutationResult> {
+    const headers = options.requesterWallet
+      ? { 'x-wallet': options.requesterWallet }
+      : undefined;
+    return this._request<MembershipMutationResult>(
+      `/v1/communities/${encodePathSegment(input.communityId)}/members/${encodePathSegment(input.wallet)}/membership`,
+      {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({
+          expiresAt: input.expiresAt,
+        }),
+      },
+    );
+  }
+
+  /**
+   * Suspend a membership for a wallet in a community.
+   */
+  async suspendMembership(
+    input: MembershipStatusMutationInput,
+    options: { requesterWallet?: string } = {},
+  ): Promise<MembershipMutationResult> {
+    const headers = options.requesterWallet
+      ? { 'x-wallet': options.requesterWallet }
+      : undefined;
+    return this._request<MembershipMutationResult>(
+      `/v1/communities/${encodePathSegment(input.communityId)}/members/${encodePathSegment(input.wallet)}/membership/suspend`,
+      {
+        method: 'POST',
+        headers,
+      },
+    );
+  }
+
+  /**
+   * Reactivate a suspended membership for a wallet in a community.
+   */
+  async reactivateMembership(
+    input: MembershipStatusMutationInput,
+    options: { requesterWallet?: string } = {},
+  ): Promise<MembershipMutationResult> {
+    const headers = options.requesterWallet
+      ? { 'x-wallet': options.requesterWallet }
+      : undefined;
+    return this._request<MembershipMutationResult>(
+      `/v1/communities/${encodePathSegment(input.communityId)}/members/${encodePathSegment(input.wallet)}/membership/reactivate`,
+      {
+        method: 'POST',
+        headers,
+      },
+    );
   }
 
   /**
